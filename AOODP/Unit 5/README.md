@@ -1,148 +1,154 @@
-# Unit 4: Design Patterns II — Structural Patterns
-### Collaborative Discussion
-*(Formative — not assessed; collaborative discussion format)*
+# Unit 5: Behavioural Patterns
+### Collaborative Discussion: Refactoring to the Strategy Pattern
+*(Formative, collaborative discussion format)*
 
 ## Task
 
-Using Structural Design Patterns, address three discussion tasks, each with a
-real-world scenario, an explanation, and a Python code example:
+Analyze a simple payment-processing code snippet and refactor it using the
+Strategy Pattern.
 
-1. **Adapter Pattern** — integrating a legacy SOAP-based payment system with
-   a modern RESTful e-commerce platform.
-2. **Bridge Pattern** — managing different devices (TV, Radio) and different
-   remote controls (Basic, Advanced), decoupling abstraction from
-   implementation.
-3. **Composite Pattern** — managing a file system where files and folders
-   are treated uniformly through a shared interface.
+**Original code:**
+
+```python
+class PaymentProcessor:
+    def process_payment(self, payment_type, amount):
+        if payment_type == "credit_card":
+            print(f"Processing credit card payment of ${amount}")
+        elif payment_type == "paypal":
+            print(f"Processing PayPal payment of ${amount}")
+        elif payment_type == "bank_transfer":
+            print(f"Processing bank transfer of ${amount}")
+        else:
+            raise ValueError("Invalid payment type")
+```
 
 ## My Original Post
 
-**"Structural Design Patterns in Autonomous Security Operations"**
+**1. Problems in the Current Implementation**
 
-Structural design patterns, as defined by Gamma et al. (1994), address how
-classes and objects are composed to form larger, more flexible structures.
-This post explores Adapter, Composite, and Bridge through the lens of an
-AI-driven Security Operations Centre (SOC), where autonomous agents must
-ingest heterogeneous data, reason over complex threat models, and execute
-containment actions within defined policy boundaries. As Srinivas et al.
-(2025) observe, autonomous SOC agents must detect, classify, and respond to
-threats with minimal human intervention — a capability that depends heavily
-on sound architectural design.
+The existing PaymentProcessor class violates the Open/Closed Principle.
+Every new payment type requires cracking open the class and adding another
+elif branch, that's modification, not extension. The class also does too
+much: it owns both the routing logic and the payment logic, making it
+increasingly unwieldy as payment methods grow, which violates SRP as well.
 
-**Adapter Pattern.** An AI agent's reasoning is only as good as the data it
-consumes. Legacy data sources, network sensors, and endpoint tools each
-produce telemetry in different formats — delimiter-separated strings,
-proprietary syslog variants, structured JSON. An adapter per data source
-translates raw output into a shared `NormalizedAlert()` structure, so the
-agent reasons uniformly regardless of source. Adding a new data source means
-writing a new adapter; the agent itself is untouched.
+**2. How the Strategy Pattern Improves the Code**
+
+The Strategy Pattern fixes this by extracting each payment method into its
+own class, all inheriting from a common abstract base (PaymentStrategy).
+Adding a new payment type means adding a new class (extension), not another
+elif block (modification). Changes here don't require changes there. The
+codebase becomes genuinely modular, which scales nicely.
+
+**3. Refactored Code**
 
 ```python
-class LegacySIEMAdapter(AlertSource):
-    def __init__(self, siem): self.siem = siem
-    def get_alert(self):
-        # Translates the legacy pipe-delimited string into a NormalizedAlert —
-        # the only format the AI agent knows how to consume.
-        p = self.siem.fetch_raw_event().split("|")
-        return NormalizedAlert(p[0], p[1], p[2], p[3])
+from abc import ABC, abstractmethod
+
+# Abstract base class - broadcasting loud and proud that we're using the Strategy Pattern
+# Any new payment type MUST implement the pay method. No exceptions.
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount: float) -> None:
+        pass
+
+# Concrete strategies - each payment type minds its own business
+# Adding a new payment type means adding a new class, NOT touching existing code
+class CreditCardPayment(PaymentStrategy):
+    def pay(self, amount: float) -> None:
+        print(f"Processing credit card payment of ${amount}")
+
+class PayPalPayment(PaymentStrategy):
+    def pay(self, amount: float) -> None:
+        print(f"Processing PayPal payment of ${amount}")
+
+class BankTransferPayment(PaymentStrategy):
+    def pay(self, amount: float) -> None:
+        print(f"Processing bank transfer of ${amount}")
+
+class CryptoPayment(PaymentStrategy):
+    def pay(self, amount: float) -> None:
+        print(f"WARNING: CryptoBro scammer detected. Processing crypto payment of ${amount}")
+
+# PaymentProcessor doesn't know or care which payment type it's dealing with
+# It just knows it has a strategy with a pay method. That's the whole contract.
+class PaymentProcessor:
+    def __init__(self, strategy: PaymentStrategy) -> None:
+        self._strategy = strategy
+
+    def set_strategy(self, strategy: PaymentStrategy) -> None:
+        self._strategy = strategy
+
+    def process_payment(self, amount: float) -> None:
+        self._strategy.pay(amount)
+
+# Usage - PaymentProcessor has no idea what it's talking to, and that's the point
+processor = PaymentProcessor(CreditCardPayment())
+processor.process_payment(150.00)
+processor.set_strategy(PayPalPayment())
+processor.process_payment(75.50)
+processor.set_strategy(CryptoPayment())
+processor.process_payment(99.99)
 ```
 
-**Composite Pattern.** The MITRE ATT&CK framework — a structured knowledge
-base of adversary tactics and techniques (Strom et al., 2018) — is inherently
-hierarchical: individual techniques roll up into tactics, which compose into
-kill chains. Modelling this with Composite lets an agent reason at any
-level — predicting next steps from a single technique, or projecting a full
-campaign trajectory — using identical logic.
+**4. Benefits**
 
-```python
-class Technique(ATTACKNode):
-    # Leaf node — returns its own next-step predictions directly.
-    def predicted_next(self): return self.next_steps
-
-class Tactic(ATTACKNode):
-    # Composite node — delegates to each child and aggregates the results.
-    # The agent calls predicted_next() identically on both; it cannot tell them apart.
-    def predicted_next(self):
-        return list({s for c in self.children for s in c.predicted_next()})
-```
-
-**Bridge Pattern.** The agent must decide *what* action to take (isolate a
-host, block an IP, remediate a vulnerability) independently of *how and
-where* that action executes, which varies across cloud EDR platforms,
-on-premise firewalls, and network infrastructure. Policy guardrails —
-defining which actions the agent may execute autonomously, and at what
-severity threshold — must be enforced at the seam between decision and
-execution. Srinivas et al. (2025) note that automating security operations
-requires rules of engagement and a degree of certainty before execution,
-particularly for irreversible actions; the Bridge pattern enforces exactly
-this separation.
-
-```python
-class IsolateHostAction:
-    def execute(self, host, severity):
-        # Policy is checked before the execution target is invoked.
-        # The action (what) is decoupled from the target (how and where)
-        # and neither proceeds without Policy's approval.
-        if self.policy.approve("IsolateHost", severity):
-            self.target.isolate_host(host)
-```
+- **Readability**: no more nested elif chains to untangle
+- **Modularity**: each payment type is self-contained
+- **Stability**: adding CryptoPayment doesn't risk breaking CreditCardPayment
+- **Maintainability**: no chain of dependencies triggered by a single modification
+- **SOLID compliance**: open for extension, closed for modification, single responsibility preserved
 
 ## Peer Engagement
 
-Replied to Reena's post, which implemented Composite via a file/folder system
-and Adapter via a `PaymentAdapter`.
+Replied to Reena's post, which implemented Strategy using a strategy_map
+dictionary (payment_type string → strategy instance) in place of the
+original if/elif chain.
 
-**On Composite** — noted that her file/folder implementation and my own
-Composite solution (a MITRE ATT&CK threat hierarchy, traversed identically
-across individual techniques and tactic groupings by an AI reasoning agent)
-arrived at the same structural approach from very different problem domains —
-evidence that the pattern generalises as an architectural principle rather
-than being tied to any one kind of hierarchy.
+Acknowledged the strategy_map as a genuine readability improvement over
+the original chain, but identified a subtler problem: every time a new
+payment type is added, the map itself needs to be updated too, meaning
+extension of the system still requires modification somewhere, just moved
+one level up rather than eliminated. Reasoned through where the map could
+live to avoid this, and concluded there wasn't a clean home for it: placing
+it in the abstract base class violates SRP (the base class shouldn't know
+about every concrete subclass); placing it in PaymentProcessor violates
+OCP (the same class needing modification for each new type, just relocated).
+Proposed constructor injection instead: the calling code decides which
+strategy to use and passes it in directly, with no central registry to
+maintain at all:
 
-**On Adapter** — identified that her `PaymentAdapter` hardcoded `"GBP"` as the
-currency, meaning the adapter was making a business decision rather than
-purely translating between interfaces. Traced this to a Single Responsibility
-Principle violation: the class had two reasons to change — SOAP/REST
-translation logic, and currency policy — where a clean adapter should have
-only the first. Recommended passing currency through from the calling
-context instead, keeping the adapter reusable across markets. Cited Martin
-(2003) as the canonical source for SOLID, noting the principles were
-formally introduced there and only later popularised in *Clean Code* (2008).
+```python
+processor = PaymentProcessor(CreditCardPayment())
+processor.process_payment(150.00)
+```
 
-**On Bridge** — acknowledged a fair point raised by Joseph regarding the
-distinction between dependency injection and a true Bridge pattern (two
-independently evolving class hierarchies), flagged as worth revisiting.
+Also replied to Joseph's post, which implemented Strategy through a
+payment-processing scenario framed around African mobile money providers
+(M-Pesa, MTN MoMo), with PaymentProcessor allowing an optional strategy at
+construction (Optional[PaymentStrategy] = None) and a set_strategy()
+method, guarded by a ValueError if process_payment() is called before a
+strategy is set.
 
-## Reference
+Noted the defensive ValueError guard as a solid pattern not used in my own
+implementation, and specifically raised a design question: Joseph's
+PaymentProcessor allows construction without a strategy (assigned later
+via set_strategy()), whereas my own implementation requires a strategy at
+instantiation (def __init__(self, strategy: PaymentStrategy)), making it
+impossible for a PaymentProcessor to exist in an invalid state at all.
 
-Feuerriegel, S., Shrestha, Y.R., von Krogh, G. and Zhang, C. (2025) 'A survey
-of agentic AI and cybersecurity: Challenges, opportunities and use-case
-prototypes', *arXiv preprint*, arXiv:2601.05293.
-
-Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994) *Design Patterns:
-Elements of Reusable Object-Oriented Software*. Boston: Addison-Wesley.
-
-Martin, R.C. (2003) *Agile Software Development: Principles, Patterns, and
-Practices*. Upper Saddle River, NJ: Prentice Hall.
-
-Srinivas, S., Kirk, B., Zendejas, J., Espino, M., Boskovich, M., Bari, A.,
-Dajani, K. and Alzahrani, N. (2025) 'AI-augmented SOC: A survey of LLMs and
-agents for security automation', *Journal of Cybersecurity and Privacy*,
-5(4), p. 95.
-
-Strom, B.E., Applebaum, A., Miller, D.P., Nickels, K.C., Pennington, A.G. and
-Thomas, C.B. (2018, revised 2020) *MITRE ATT&CK: Design and Philosophy*.
-Technical report. McLean, VA: The MITRE Corporation.
+Joseph's response resolved this well: requiring a strategy at construction
+is generally more robust, since it enforces a valid object state from the
+start, but the optional/set_strategy() approach is genuinely preferable in
+scenarios like dynamic UI workflows, where the processor object must exist
+before the user has actually chosen a payment method. He proposed a
+middle-ground: require an initial strategy in the constructor for safety,
+while still exposing a setter for runtime flexibility, combining both
+approaches rather than treating them as mutually exclusive.
 
 ## Reflection
 
-To this point, I'd been wondering why an object-oriented programming course
-belonged in a postgraduate degree focused on cybersecurity. This formative
-assignment was my first real attempt to bridge the cybersecurity world — and
-my own professional research work, currently focused on autonomous security
-operations — with this postgraduate pursuit. Prior to this, a SIEM was, to
-me, just a piece of infrastructure: a log dumping ground. An AI agent was
-just another automation tool. But through the lens of the Adapter, Bridge,
-and Composite patterns, I started to appreciate a little more about the
-inner workings of these SOC components, and how architectural thinking
-applies to a domain I already thought I understood well.
+By this point in the module, I was more able to see design patterns and
+SOLID principles clearly. Deconstructing a system into its component
+classes was starting to become second nature again, like an old muscle
+that hadn't been used in years, suddenly back in shape.
