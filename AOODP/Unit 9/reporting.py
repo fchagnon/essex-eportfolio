@@ -21,37 +21,28 @@ class InventoryReportVisitor(ReportVisitor):
     Doesn't need to touch orders meaningfully, but must implement
     visit_order() to satisfy the interface (can be a no-op).
     """
+    def __init__(self, threshold: int = 10) -> None:
+        self.threshold = threshold
+        self.low_stock: list[Product] = []
 
-    def __init__(self):
-        self.low_stock = []  # products below some threshold
+    def visit_product(self, product: Product) -> None:
+        if product.stock < self.threshold:
+            self.low_stock.append(product)
 
-    def visit_product(self, product: Product):
-        """
-        If product.stock is below a threshold (pick one, e.g. 10),
-        append it to self.low_stock.
-        """
-        raise NotImplementedError
-
-    def visit_order(self, order: Order):
-        """No-op for this visitor - inventory doesn't care about orders."""
-        raise NotImplementedError
-
+    def visit_order(self, order: Order) -> None:
+        pass
 
 class SalesReportVisitor(ReportVisitor):
     """
     Accumulates revenue data as it visits orders.
     """
+    def __init__(self) -> None:
+        self.total_revenue: float = 0.0
+        self.orders_seen: int = 0
 
-    def __init__(self):
-        self.total_revenue = 0.0
-        self.orders_seen = 0
+    def visit_product(self, product: Product) -> None:
+        pass
 
-    def visit_product(self, product: Product):
-        """No-op for this visitor - sales doesn't care about individual products."""
-        raise NotImplementedError
-
-    def visit_order(self, order: Order):
-        """
-        Add order.total() to self.total_revenue, increment self.orders_seen.
-        """
-        raise NotImplementedError
+    def visit_order(self, order: Order) -> None:
+        self.total_revenue += order.total()
+        self.orders_seen += 1
