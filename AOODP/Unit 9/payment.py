@@ -20,32 +20,36 @@ class RefundHandler(ABC):
 
 class StripeGateway(PaymentGateway):
     def charge(self, amount: float) -> bool:
-        """Simulate a Stripe charge (print + return True)."""
-        raise NotImplementedError
+        """Simulate a Stripe charge."""
+        print(f"[Stripe] Successfully charged ${amount:.2f}")
+        return True
 
 
 class StripeRefundHandler(RefundHandler):
     def refund(self, amount: float) -> bool:
-        raise NotImplementedError
+        """Simulate a Stripe refund."""
+        print(f"[Stripe] Successfully refunded ${amount:.2f}")
+        return True
 
 
 class PayPalGateway(PaymentGateway):
     def charge(self, amount: float) -> bool:
-        raise NotImplementedError
+        """Simulate a PayPal charge."""
+        print(f"[PayPal] Successfully charged ${amount:.2f} via Express Checkout")
+        return True
 
 
 class PayPalRefundHandler(RefundHandler):
     def refund(self, amount: float) -> bool:
-        raise NotImplementedError
+        """Simulate a PayPal refund."""
+        print(f"[PayPal] Successfully processed partner refund of ${amount:.2f}")
+        return True
 
 
 class PaymentProviderFactory(ABC):
     """
     Abstract Factory: each concrete factory produces a MATCHED pair -
-    a gateway and a refund handler from the SAME provider. This is the
-    bit that makes it Abstract Factory rather than a plain Factory Method:
-    the two products must never be mixed (e.g. Stripe gateway + PayPal
-    refund handler would be a bug this pattern prevents by construction).
+    a gateway and a refund handler from the SAME provider.
     """
 
     @abstractmethod
@@ -59,15 +63,15 @@ class PaymentProviderFactory(ABC):
 
 class StripeProviderFactory(PaymentProviderFactory):
     def create_gateway(self) -> PaymentGateway:
-        raise NotImplementedError
+        return StripeGateway()
 
     def create_refund_handler(self) -> RefundHandler:
-        raise NotImplementedError
+        return StripeRefundHandler()
 
 
 class PayPalProviderFactory(PaymentProviderFactory):
     def create_gateway(self) -> PaymentGateway:
-        raise NotImplementedError
+        return PayPalGateway()
 
     def create_refund_handler(self) -> RefundHandler:
-        raise NotImplementedError
+        return PayPalRefundHandler()
