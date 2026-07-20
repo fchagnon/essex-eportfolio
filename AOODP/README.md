@@ -21,10 +21,12 @@ reflective Professional Development Plan).
 | [Unit 9](Unit%209) | Object-Oriented Software Architecture |
 | [Unit 10](Unit%2010) | Test-Driven Development (TDD) and Behavior Driven Development (BDD) |
 | [Unit 11](Unit%2011) | Dependency Injection and Inversion of Control (IoC) |
+| [Unit 12](Unit%2012) | End of Module Assignment (EMA) submission |
 
 Each unit folder contains its own README covering the unit's topic,
 learning outcomes, formative assignment, and reflection, along with any
-supporting code, tests, and design artefacts.
+supporting code, tests, and design artefacts. Unit 12 holds the EMA
+submission itself; its own README is pending the returned grade.
 
 ## Highlights
 
@@ -46,4 +48,4 @@ pattern for cross-cutting concerns like audit logging.
 
 The full EMA e-Portfolio and reflective Professional Development Plan,
 submitted as a single document, draws on artefacts from every unit
-above.
+above and is held in [Unit 12](Unit%2012).
