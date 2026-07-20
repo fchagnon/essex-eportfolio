@@ -1,4 +1,4 @@
-# Unit 10: Test-Driven Development (TDD) and Behaviour Driven Development (BDD)
+# Unit 10: Test-Driven Development (TDD) and Behavior Driven Development (BDD)
 
 ## Unit Topic
 
