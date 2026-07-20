@@ -5,8 +5,8 @@ This repository contains coursework completed as part of my Master's program wit
 Each top-level folder corresponds to a module taken during the program. Work within each module folder is further organized by unit, following the structure of that module's assessments and exercises.
 
 ## Modules
-- **LIC** — Launch Into Computing (January 2026 - April 2026)
-- **AOODP** — Advanced Object-Oriented and Design Patterns (April 2026 - July 2026)
+- **[LIC](LIC/)** — Launch Into Computing (Jan 2026 - Apr 2026)
+- **[AOODP](AOODP/)** — Advanced Object-Oriented Design and Programming (Apr 2026 - Jul 2026)
 
 Future modules will be added as new top-level folders as they are undertaken.
 
