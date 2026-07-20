@@ -6,7 +6,7 @@ Each top-level folder corresponds to a module taken during the program. Work wit
 
 ## Modules
 
-- **OOP** — Advanced Object-Oriented and Design Patterns (AOODP)
+- **AOODP** — Advanced Object-Oriented and Design Patterns (April 2026 - July 2026)
 
 Future modules will be added as new top-level folders as they are undertaken.
 
