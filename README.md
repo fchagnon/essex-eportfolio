@@ -11,8 +11,6 @@ Each top-level folder corresponds to a module taken during the program. Work wit
 Future modules will be added as new top-level folders as they are undertaken.
 
 ## About Me
-About Me
-
 I'm a cybersecurity consultant, advisor, and researcher by trade, with a few decades of experience working in network and server infrastructure as well as information security. This repository documents my coursework toward an MSc in Cyber Security at the University of Essex Online. Feel free to connect with me on LinkedIn here: 
 [LinkedIn](https://www.linkedin.com/in/fredchagnon/)
 
