@@ -10,6 +10,14 @@ Each top-level folder corresponds to a module taken during the program. Work wit
 
 Future modules will be added as new top-level folders as they are undertaken.
 
+## About Me
+About Me
+
+I'm a cybersecurity consultant, advisor, and researcher by trade, with a few decades of experience working in network and server infrastructure as well as information security. This repository documents my coursework toward an MSc in Cyber Security at the University of Essex Online. Feel free to connect with me on LinkedIn here: 
+[LinkedIn](https://www.linkedin.com/in/fredchagnon/)
+
+Outside coursework, I'm an avid cyclist, primarily ultra-endurance and randonneuring. This is relevant because it's bound to show up more than once in this repository. Whenever I'm looking for outside context to motivate and inspire me to complete a specific unit assignment, this is what I reach for. 
+
 ## Notes
 
 - Code and reflective documents in this repository represent my own work, developed with the assistance of AI tools (Claude, Gemini) as permitted and cited under University of Essex academic integrity guidelines.
