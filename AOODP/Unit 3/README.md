@@ -1,61 +1,79 @@
-# Unit 3: Design Patterns I: Creational Patterns
-### Implementing the Factory Method Pattern
-*(Formative, not assessed; submitted, no tutor feedback received)*
+# Unit 3: Design Patterns I - Creational Patterns
 
-## Task
+## Unit Topic
 
-Design a system for a car manufacturer producing different car types, using
-the Factory Method Pattern so the main program can create cars without
-specifying their exact class.
+This unit introduces design patterns as proven, reusable solutions to
+common design problems, focusing on five creational patterns: Singleton,
+Factory Method, Builder, Prototype, and Abstract Factory. The formative
+exercise focuses specifically on Factory Method, implemented hands-on;
+the other four are covered conceptually through the reading and case
+study rather than built directly in this unit.
 
-Required:
-- A Car interface/abstract class with drive()
-- Concrete car classes implementing Car
-- A CarFactory abstract class with factory method create_car()
-- Concrete factories overriding create_car()
-- A demonstration of the pattern in use
+## Learning Outcomes
 
-## Artefact
+By the end of this unit, I should be able to:
 
-unit3.py: implemented with real Toyota models instead of the generic
-Sedan/SUV/Hatchback naming suggested by the brief: CorollaCross, RAV4,
-PriusC, each a concrete Car subclass implementing drive(), paired with
-matching CorollaCrossFactory, RAV4Factory, PriusCFactory classes
-implementing create_car().
+- Understand and explain what design patterns are and why they are
+  important in software development.
+- Identify and apply key creational design patterns, including Singleton,
+  Factory Method, Builder, Prototype, and Abstract Factory.
+- Recognize how creational patterns are used in real-world software
+  systems to improve flexibility and maintainability.
+- Implement the Factory Method pattern in a practical coding exercise.
 
-The demonstration is framed around a personal scenario: modeling an actual
-garage of vehicles as factories, with two use cases:
-1. **Any available car will do**: the factory is resolved generically
-   (next(iter(garage.values()))), with the caller never specifying which
-   concrete car type it receives.
-2. **A specific car is required for the task**: RAV4Factory() is requested
-   by name, since hauling mountain bikes specifically needs the RAV4's cargo
-   capacity, illustrating that the pattern doesn't prevent requesting a
-   specific type when the use case genuinely demands it, it just removes
-   the *need* to hardcode that choice everywhere else.
+## Formative Assignment
 
-## Factory Method vs. Abstract Factory: the distinction this artefact shows
+*(Formative, not assessed; informal tutor feedback only)*
 
-This is worth stating explicitly, since both patterns appear in this
-portfolio (Abstract Factory in the Unit 9 ShopEase payment system) and
-they're easy to conflate:
+Design a system for a car manufacturer producing different car types
+using the Factory Method pattern, so the main program can create cars
+without specifying their exact class:
 
-- **Factory Method** (this artefact): each factory produces **one kind of
-  product**: CorollaCrossFactory only ever makes a CorollaCross. The
-  pattern's value is letting client code (client_code(factory)) depend on
-  the abstract CarFactory/Car interfaces only, never a concrete car class.
-- **Abstract Factory** (Unit 9): each factory produces a **matched family of
-  related products**: StripeProviderFactory produces both a gateway *and*
-  a refund handler that must always come from the same provider. The
-  extra structure exists specifically to prevent mismatched combinations,
-  a concern that doesn't arise when a factory only ever makes one thing.
+- A `Car` abstract class with a `drive()` method.
+- Concrete car classes (implemented here as real Toyota models rather
+  than the generic Sedan/SUV/Hatchback naming suggested in the brief).
+- A `CarFactory` abstract class with a factory method `create_car()`.
+- Concrete factory classes overriding `create_car()` for each car type.
+- A demonstration where client code depends only on the abstract `Car`
+  and `CarFactory`, never a concrete class.
+
+Full code: https://github.com/fchagnon/essex-eportfolio/tree/main/AOODP/Unit%203
+
+## Reading List
+
+Sarcar, V. (2022) *Java Design Patterns: A Hands-On Experience with
+Real-World Examples*. 3rd edn. Berkeley, CA: Apress. Parts 1, 2, and 4.
+
+Reddy, M. (2024) *API Design for C++*. 2nd edn. San Diego: Elsevier
+Science and Technology. Chapters 3, 9, 10, and 12.
 
 ## Reflection
 
 While SOLID principles from Unit 2 were familiar to me, design patterns
-like the Factory Method were new. Either these patterns weren't yet refined
+like Factory Method were new. Either these patterns weren't yet refined
 in the mid-2000s, or my study in application programming didn't go deep
 enough to reach them.
 
-This really forced me to start thinking much more abstractly about design.
-That is not natural for me, it goes very against the grain.
+**Understanding what design patterns are.** This unit was the first place
+the difference between a principle and a pattern actually landed: SOLID
+gives you rules for how classes should relate to each other, a pattern is
+a specific, named structure for solving a recurring problem within those
+rules. That distinction wasn't obvious walking in.
+
+**Identifying and applying creational patterns.** Only Factory Method was
+built hands-on here; Singleton, Builder, Prototype, and Abstract Factory
+stayed conceptual through the reading and case study. Abstract Factory
+specifically became hands-on much later, in Unit 9's payment provider
+system, where the family-of-related-objects idea from this unit's reading
+finally had a real problem to solve.
+
+**Recognizing creational patterns in real-world systems.** This required
+real, ground-up learning rather than translation from prior experience.
+This really forced me to start thinking much more abstractly about
+design. That is not natural for me, it goes very against the grain.
+
+**Implementing Factory Method.** New car types are added as new classes;
+the client code that requests a car never changes, since it only ever
+depends on the abstract `Car` interface. Simple in hindsight, but the
+exercise of building it, rather than just reading about it, is what made
+the abstraction genuinely click rather than remain a definition.

@@ -1,108 +1,88 @@
-# Unit 9: Software Architecture
-### ShopEase: Layered E-Commerce Architecture
+# Unit 9: Object-Oriented Software Architecture
 
-## Task
+## Unit Topic
 
-Design an object-oriented software architecture for an online shopping
-system (ShopEase), addressing scalability, modularity, security, and
-extensibility, using a layered architecture (Presentation, Business Logic,
-Data Access).
+This unit covers software architecture styles (layered, microservices,
+monolithic) and how object-oriented design principles support scalable,
+maintainable, and secure systems, applied hands-on by designing ShopEase,
+a layered e-commerce architecture.
 
-This unit had no formal submission portal or discussion forum. The work
-below was produced as a design exercise, its patterns were deliberately
-chosen to also serve as EMA artefacts for Abstract Factory and Visitor,
-since no other unit's work provides those.
+## Learning Outcomes
 
-## Architecture Diagram
+By the end of this unit, I should be able to:
 
-![ShopEase UML class diagram](shopease_uml.png)
+- Understand and explain key software architecture styles, including
+  layered architecture, microservices, and monolithic applications.
+- Recognize the role of object-oriented design in creating scalable,
+  maintainable, and secure architectures.
+- Analyze a case study on designing a secure architecture for a
+  large-scale system.
+- Apply architectural principles to build a simple object-oriented-based
+  software architecture.
 
-Color key: yellow (domain models), blue (data access layer), green
-(business logic layer), orange (observer/notifications), purple (abstract
-factory/payment), pink (visitor/reporting).
+## Formative Assignment
 
-## How Each Requirement Shaped the Design
+Design an online shopping system (ShopEase) for a growing number of users
+and products, addressing:
 
-**Scalability.** A growing number of users and products will eventually hit
-a capacity or performance ceiling on whatever storage is used. Business
-logic classes (ProductCatalog, OrderProcessor) never talk to a specific
-storage technology directly; they depend only on an interface (get, save,
-all), with the concrete implementation handed in from outside at
-construction time. This is the Repository pattern: ProductRepository and
-OrderRepository as interfaces, with InMemoryProductRepository and
-InMemoryOrderRepository as swappable implementations.
+1. **Scalability** — handling growth in users and products.
+2. **Modularity** — independent modules (user management, product
+   catalogue, order processing).
+3. **Security** — protecting user data and transactions.
+4. **Extensibility** — easy addition of new features (payment methods,
+   recommendation engines).
+5. **Layered architecture** — Presentation, Business Logic, and Data
+   Access layers, each internally modular and built on encapsulation,
+   inheritance, and polymorphism.
 
-**Modularity.** Independent modules means UserManager, ProductCatalog, and
-OrderProcessor hold no direct knowledge of each other and never appear in
-one another's constructors. Order is the deliberate exception, the one
-place a User and a set of Products are allowed to meet. All wiring (looking
-up a user, looking up products, assembling an order, handing it to
-OrderProcessor) happens in a single separate place, the composition root
-(main.py), the only part of the system allowed to know about everything.
+Full code and design rationale: https://github.com/fchagnon/essex-eportfolio/tree/main/AOODP/Unit%209
 
-**Security.** This splits into two different problems. For credentials,
-User holds a hashed password (bcrypt, per the Unit 7 authentication work),
-never plaintext. For payment data, ShopEase's own code never receives or
-stores raw card details at all: PaymentGateway.charge(amount) and
-RefundHandler.refund(amount) only ever take a monetary amount, since card
-capture and validation happen entirely inside Stripe or PayPal's own
-systems. This keeps ShopEase outside PCI-DSS's stricter obligations by
-design.
+## Reading List
 
-**Extensibility.** Adding or removing a payment provider should not require
-editing OrderProcessor. A payment provider is also not one capability but
-two, charging and refunding, and those two must never be mismatched (a
-Stripe charge paired with a PayPal refund, for example). Rather than
-injecting a gateway and refund handler as two independent objects, a single
-factory produces a matched pair from the same provider by construction.
-This is the Abstract Factory pattern: StripeProviderFactory and
-PayPalProviderFactory each produce their own gateway/refund-handler pair,
-and OrderProcessor depends only on the abstract PaymentProviderFactory,
-never on Stripe or PayPal by name.
+Chow, J. (2024) *Software Architecture with Kotlin: Combine Various
+Architectural Styles to Create Sustainable and Scalable Software
+Solutions*. 1st edn. Birmingham: Packt Publishing. Chapters 6, 7, and 13.
 
-**Layered architecture and notifications.** OrderProcessor should not need
-to know the specific list of notification channels, or edit itself every
-time that list changes. It holds a generic list of observers, each
-satisfying the same OrderObserver interface, and announces events without
-knowing who is listening or how many; EmailNotifier and SMSNotifier are two
-current implementations. Stepping back, every mechanism above (Repository,
-the composition root, Abstract Factory, Observer) is a specific application
-of a single underlying principle: decoupling, keeping two classes
-structurally apart so that changing one never forces a change in the other.
-"Layers" is simply the name for grouping these decoupled relationships into
-broad categories: Data Access, Business Logic, and the boundary with the
-outside world.
-
-## Patterns Added Beyond the Brief
-
-Abstract Factory is also a legitimate answer to the brief's own
-Extensibility requirement, so its inclusion is justified by the brief
-itself. Visitor (ReportVisitor, SalesReportVisitor,
-InventoryReportVisitor) is not requested anywhere in the brief; it was
-added because the EMA's Task 2 requires a Visitor artefact and no other
-unit provides one. The justification used is that a real store would
-plausibly want sales and inventory reports without cluttering Product or
-Order with reporting logic unrelated to what a product or order is, a
-reasonable design choice on its own merits, but motivated here by portfolio
-completeness rather than the Unit 9 brief.
-
-## Implementation Status
-
-The design was worked through in full before any code was written. Of the
-six-file structure it produced (models.py, repositories.py,
-notifications.py, payment.py, reporting.py, business_logic.py), only
-models.py (Product.accept(), Order.accept(), Order.total()) is currently
-implemented; the remaining files exist as interface definitions and
-method stubs.
+Garcia, M.M. and Telang, T. (2023) *Learn Microservices with Spring Boot
+3: A Practical Approach Using Event-Driven Architecture, Cloud-Native
+Patterns, and Containerization*. 3rd edn. Berkeley, CA: Apress. Chapters
+6, 7, and 8.
 
 ## Reflection
 
-It was nice to get away from the code and really focus on simply designing
-the architecture. In fact, this exercise reinforced for me the importance
-of up-front module and interface design before getting right into the
-code. Prior to that, I could only think about which file I should write
-first, but I had no concept of which class went into which file.
+I relied on UML diagrams to map out classes and their dependencies before
+writing a single line of code, a habit that prevented me from falling
+back into monolithic procedures that violated SOLID principles.
 
-I guess that is the thing with monolithic development: you start at the
-very beginning. But with object-oriented design, it is hard to know where
-to start. The UML diagram I produced as an aid really helped with that.
+**Understanding architecture styles.** The brief specifies layered
+architecture directly, so the real learning here wasn't choosing between
+styles, it was understanding *why* layering solves the stated
+requirements at all, rather than treating it as an arbitrary structural
+choice.
+
+**Recognizing the role of OOP in scalable, secure architecture.** Working
+through this gave me a concrete answer to a question I hadn't had to
+think about explicitly before: what actually makes an architecture
+"large-scale ready." The answer isn't size, it's decoupling, the same
+principle behind splitting an application into layers connected only
+through abstractions, so any one can be swapped without breaking the
+others. Every mechanism in ShopEase, Repository for storage, a
+composition root for wiring, Abstract Factory for payment providers,
+Observer for notifications, is a separate instance of that same rule.
+
+**Analyzing the case study.** Security split into two genuinely different
+problems that needed different solutions: credentials, handled through
+hashed passwords, and payment data, handled by never letting it touch the
+application's own code at all, `PaymentGateway.charge(amount)` accepts
+only a monetary amount, keeping card capture entirely inside the
+provider's systems by design.
+
+**Applying architectural principles.** Two patterns beyond the brief's
+own requirements, Abstract Factory and Visitor, were deliberately added
+during this unit, not because ShopEase's own brief called for them, but
+because no other unit's work provided an artefact for either pattern.
+Abstract Factory turned out to be a legitimate answer to the brief's own
+extensibility requirement regardless; Visitor was added purely for
+portfolio completeness, justified on its own design merits (keeping
+`Product` and `Order` free of reporting logic) rather than anything the
+brief itself asked for.
