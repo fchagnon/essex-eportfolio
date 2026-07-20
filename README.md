@@ -7,7 +7,7 @@ Each top-level folder corresponds to a module taken during the program. Work wit
 ## Modules
 - **[LIC](LIC/)** — Launch Into Computing (Jan 2026 - Apr 2026)
 - **[AOODP](AOODP/)** — Advanced Object-Oriented Design and Programming (Apr 2026 - Jul 2026)
-- **[NETSEC]** — Network Security - COMING NEXT (Jul 2026 - Oct 2026)
+- **NETSEC** — Network Security - COMING NEXT (Jul 2026 - Oct 2026)
 
 Future modules will be added as new top-level folders as they are undertaken.
 
